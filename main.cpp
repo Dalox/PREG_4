@@ -71,6 +71,7 @@ void dtcRct(int,void*)
 	vector<vector<Point>> contArea;
 	vector<vector<Point>> circlecont;
 	vector<vector<Point>> rectcont;
+	vector<vector<Point>> holdElem;
 
 	Mat nar = Mat::zeros(dst_fill.size(), CV_8UC3);
 	Mat hcdr = Mat::zeros(dst_fill.size(), CV_8UC3);
@@ -81,7 +82,6 @@ void dtcRct(int,void*)
 	///----------Separa los cuadrados con huecos y los circulos
 	for (size_t i = 0; i < contArea.size(); i++)
 	{
-		cout << "Areas de los contornos: " << arcLength(contArea[i], false) << endl;
 		if (arcLength(contArea[i],false) > 100.0)
 		{
 			drawContours(nar, contArea, (int)i, color, 1, 8, hierarchy, 0, Point());
@@ -108,34 +108,36 @@ void dtcRct(int,void*)
 	cvtColor(hollow, hollow, CV_BGR2GRAY);
 	cvtColor(hcrl, hcrl, CV_BGR2GRAY);
 	cvtColor(hcdr, hcdr, CV_BGR2GRAY);
+	cvtColor(nar, nar, CV_BGR2GRAY);
 
 	threshold(ccl, ccl, 30, 255.0, CV_THRESH_BINARY);
 	threshold(rct, rct, 30, 255.0, CV_THRESH_BINARY);
 	threshold(hollow, hollow, 30, 255.0, CV_THRESH_BINARY);
 	threshold(hcrl, hcrl, 30, 255.0, CV_THRESH_BINARY);
 	threshold(hcdr, hcdr, 30, 255.0, CV_THRESH_BINARY);
+	threshold(nar, nar, 30, 255.0, CV_THRESH_BINARY);
 	///-------------Sacar contornos----------------
 	findContours(ccl, contCircle, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	findContours(rct, contRect, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	findContours(hollow, contours_hollow, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	findContours(hcrl, circlecont, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	findContours(hcdr, rectcont, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+	findContours(nar, holdElem, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	///--------Mostrar las cantidad de elementos en las imagenes y las imagenes
 	cout << "Resultados: " << endl;
-	cout << "Total de Elementos: " << contours.size() << endl;
-	cout << "Circulos: " << contCircle.size() << endl;
-	cout << "Rectangulos: " << contRect.size() << endl;
-	cout << "Huecos: " << contours_hollow.size() << endl;
-	cout << "Circulos sin huecos: " << circlecont.size() << endl;
-	cout << "Rectangulos con 2 Huecos: " << rectcont.size() << endl;
-	cout << "Objetos con huecos: " << contArea.size() << endl;
+	cout << "A.Total de Elementos: " << contours.size() << endl;
+	cout << "B.Huecos: " << contours_hollow.size() << endl;
+	cout << "C.Elemetnos con dos huecos: " << holdElem.size() << endl;
+	cout << "D.Rectangulos: " << contRect.size() << endl;
+	cout << "E.Rectangulos con Huecos: " << rectcont.size() << endl;
+	cout << "F.Circulos sin huecos: " << circlecont.size() << endl;
 
-	imshow("Contours", fill);
+	imshow("Contornos", fill);
 	imshow("Huecos", hollow);
-	imshow("Areas", area);
-	imshow("Dos Huecos", nar);
+	imshow("Elementos con Huecos", area);
+	imshow("Elementos con dos Huecos", nar);
 	imshow("Cuadrados con dos huecos", hcdr);
-	imshow("Circulos con sin huecos", hcrl);
+	imshow("Circulos sin huecos", hcrl);
 	imshow("Circulos",ccl);
 	imshow("Rectangulos", rct);
 }
@@ -154,8 +156,6 @@ int main()
 	createTrackbar("Red", "Contours",&R,255,dtcRct);
 	createTrackbar("Green", "Contours", &G, 255, dtcRct);
 	createTrackbar("Blue", "Contours", &B, 255, dtcRct);
-	createTrackbar("Break Line", "Circulos", &brl,30, dtcRct);
-	createTrackbar("Arco", "Circulos", &arc, 200, dtcRct);
 	dtcRct(0, 0);
 
 	waitKey();
